@@ -16,9 +16,7 @@ class E2eKeypadController(
 ) {
 
     @GetMapping("/")
-    @Suppress("UNCHECKED_CAST") // <- 하면 안되는 짓
     fun getKeypad(userId: String): E2eKeypadResponseDto {
-        val keypad = E2eKeypadService.getE2eKeypad(userId)
-        return  E2eKeypadResponseDto(keys= keypad["hashes"] as List<String>, image= keypad["image"] as String)
+        return E2eKeypadService.getE2eKeypad(userId)
     }
 }

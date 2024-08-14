@@ -16,7 +16,7 @@ import javax.imageio.ImageIO
 class E2eKeypadService(
     private  val repository: E2eKeypadRedisRepository
 ) {
-    fun getE2eKeypad(userId: String): Map<String, Any> {
+    fun getE2eKeypad(userId: String): E2eKeypadResponseDto {
         // userId 저장 (hashes 필요, 타입 정리 필요, 구현 완성)
         val classLoader = this::class.java.classLoader
 
@@ -70,7 +70,7 @@ class E2eKeypadService(
         ImageIO.write(combinedImage, "png", outputStream)
         val imageBytes = outputStream.toByteArray()
         val base64Image = Base64.getEncoder().encodeToString(imageBytes)
-        return  mapOf("hashes" to data.hashes, "image" to "data:image/png;base64,$base64Image")
+        return  E2eKeypadResponseDto(data.hashes, "data:image/png;base64,$base64Image")
     }
 
     private fun generateRandomHash(): String {
