@@ -2,17 +2,15 @@ package bob.e2e.presentation.dto
 
 import bob.e2e.domain.model.E2eKeypad
 
-data class E2eKeypadResponseDto (
-    val id: String,
-    val hash: String,
+data class E2eKeypadResponseDto(
+    val keys: List<String>,
     val image: String
 ) {
     companion object {
-        fun from(e2eKeypad: E2eKeypad) =
+        fun from(keys: List<String>, image: String) =
             E2eKeypadResponseDto(
-                id = e2eKeypad.id,
-                hash = e2eKeypad.hash,
-                image = e2eKeypad.image
+                keys = keys,
+                image = image
             )
     }
 }
