@@ -9,14 +9,14 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 
 
-@RequestMapping("/e2e-keypad")
+@RequestMapping("/api")
 @RestController
 class E2eKeypadController(
     private val E2eKeypadService: E2eKeypadService,
 ) {
 
-    @GetMapping("/")
-    fun getKeypad(userId: String): E2eKeypadResponseDto {
-        return E2eKeypadService.getE2eKeypad(userId)
+    @GetMapping("/e2e-keypad")
+    fun getKeypad(): E2eKeypadResponseDto {
+        return E2eKeypadService.getE2eKeypad()
     }
 }

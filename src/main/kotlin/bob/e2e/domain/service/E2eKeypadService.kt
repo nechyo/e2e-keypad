@@ -16,27 +16,23 @@ import javax.imageio.ImageIO
 class E2eKeypadService(
     private  val repository: E2eKeypadRedisRepository
 ) {
-    fun getE2eKeypad(userId: String): E2eKeypadResponseDto {
-        // userId 저장 (hashes 필요, 타입 정리 필요, 구현 완성)
+    fun getE2eKeypad(): E2eKeypadResponseDto {
         val classLoader = this::class.java.classLoader
 
-        // 이미지를 불러옵니다.
         val numbers = (0..9).toMutableList().apply { shuffle() }
 
-        // 블랭크 이미지를 두 번 추가합니다.
         val result = numbers.map { "_$it.png" }.toMutableList()
         repeat(2) {
             result.add("_blank.png")
         }
 
-        // 다시 섞어서 블랭크 이미지의 위치가 무작위가 되도록 합니다.
         result.shuffle()
-        val data = repository.findById(userId).orElseGet {
+        val data = repository.findById(generateRandomHash()).orElseGet { // 일단 테스트용
             val newHash = result.map { fileName ->
                 if (fileName == "_blank.png") "" else generateRandomHash()
             }
 
-            repository.save(E2eKeypadHash(id= userId, hashes = newHash, nums = result.toList()))
+            repository.save(E2eKeypadHash(id= generateRandomHash(), hashes = newHash, nums = result.toList()))
         }
         val images = data.nums.map { fileName ->
             ImageIO.read(classLoader.getResourceAsStream("keypad/$fileName"))
@@ -46,26 +42,32 @@ class E2eKeypadService(
         val cols = 4
         val width = images[0].width
         val height = images[0].height
+        val gapX = 10
+        val gapY = 10
 
-        // Create a new image with the required dimensions
-        val combinedImage = BufferedImage(width * cols, height * rows, BufferedImage.TYPE_INT_ARGB)
+        val combinedImageWidth = width * cols + gapX * (cols - 1)
+        val combinedImageHeight = height * rows + gapY * (rows - 1)
+
+        val combinedImage = BufferedImage(combinedImageWidth, combinedImageHeight, BufferedImage.TYPE_INT_ARGB)
         val g: Graphics2D = combinedImage.createGraphics()
         g.color = Color(255, 255, 255, 0)
-        g.fillRect(0, 0, width * cols, height * rows)
-
+        g.fillRect(0, 0, combinedImageWidth, combinedImageHeight)
 
         for (y in 0 until rows) {
             for (x in 0 until cols) {
                 val index = y * cols + x
                 if (index < images.size) {
-                    g.drawImage(images[index], x * width, y * height, null)
+                    val posX = x * (width + gapX)
+                    val posY = y * (height + gapY)
+                    g.drawImage(images[index], posX, posY, width, height, null)
                 }
             }
         }
 
         g.dispose()
 
-        // Convert the combined image to a Base64 string
+
+
         val outputStream = ByteArrayOutputStream()
         ImageIO.write(combinedImage, "png", outputStream)
         val imageBytes = outputStream.toByteArray()
